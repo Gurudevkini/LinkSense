@@ -1,4 +1,3 @@
-# Root-level ignores
 node_modules/
 *.log
 npm-debug.log*
@@ -9,16 +8,9 @@ yarn-error.log*
 .idea/
 .env
 *.env
-package-lock.json
-pnpm-lock.yaml
-yarn.lock
 
-# Client build output
 Client/dist/
 Client/node_modules/
-
-# Server build output
 Server/node_modules/
 
-# Misc
 coverage/
