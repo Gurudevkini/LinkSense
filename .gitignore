@@ -1,0 +1,24 @@
+# Root-level ignores
+node_modules/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.DS_Store
+.vscode/
+.idea/
+.env
+*.env
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+
+# Client build output
+Client/dist/
+Client/node_modules/
+
+# Server build output
+Server/node_modules/
+
+# Misc
+coverage/

@@ -1,0 +1,590 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap');
+
+:root {
+  --bg-color: #0A0A0A;
+  --bg-card: #111111;
+  --bg-input: #0D0D0D;
+  --text-primary: #FAFAFA;
+  --text-secondary: #A1A1AA;
+  --text-muted: #71717A;
+  --border-color: rgba(255, 255, 255, 0.08);
+  --border-focus: rgba(255, 255, 255, 0.22);
+  --color-error: #EF4444;
+  --color-success: #22C55E;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'Share Tech Mono', 'Courier New', Courier, monospace;
+}
+
+/* Ensure box-sizing border-box globally to prevent overflows */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Position card in the upper half of viewport with clean spacing */
+.linksense-layout {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: clamp(64px, 12vh, 140px) 0 48px 0;
+}
+
+/* Top-right GitHub Link button */
+.github-link {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  padding: 6px 12px;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  z-index: 100;
+  transition: all 150ms ease;
+}
+
+.github-icon {
+  fill: currentColor;
+  flex-shrink: 0;
+}
+
+.github-text {
+  font-family: var(--font-sans);
+}
+
+/* Soft spotlight behind card */
+.spotlight {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100vw;
+  height: 100vh;
+  background: radial-gradient(
+    circle 800px at 50% 0%,
+    rgba(255, 255, 255, 0.01) 0%,
+    rgba(10, 10, 10, 0) 100%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Container width: 620px max on desktop, fluid on mobile */
+.container {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 420px;
+  padding-left: 16px;
+  padding-right: 16px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+/* Header styling */
+.header {
+  text-align: center;
+}
+
+/* Refined title size to prevent a bloated/zoomed look (44px max on desktop) */
+.title {
+  font-size: clamp(32px, 5.5vw, 44px);
+  font-weight: 700;
+  letter-spacing: -0.05em;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+/* Subtitle: 14px to 15px */
+.subtitle {
+  font-size: clamp(14px, 1.8vw, 15px);
+  color: var(--text-secondary);
+  font-weight: 400;
+  letter-spacing: -0.015em;
+}
+
+/* Main Form Card */
+.main-content {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Card: 24px border radius, thin border, soft layered shadow */
+.shortener-form {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  padding: clamp(20px, 4.5vw, 32px); /* card padding 32px on desktop */
+  border-radius: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px; /* compact card layout */
+  box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.6);
+  width: 100%;
+  overflow: hidden;
+}
+
+/* Label Spacing: 8px grid */
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Labels: 11-12px, letter-spacing 0.06em, Uppercase */
+.input-label {
+  font-size: clamp(11px, 1.2vw, 12px);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-secondary);
+}
+
+.label-optional {
+  color: var(--text-muted);
+  text-transform: none;
+  font-weight: 400;
+  letter-spacing: normal;
+}
+
+/* Inputs: 52px high on mobile, 48px high on desktop */
+.text-input {
+  width: 100%;
+  height: 52px;
+  padding: 0 16px;
+  background-color: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  color: var(--text-primary);
+  font-size: 16px; /* standard mobile-safe input font size */
+  outline: none;
+  font-family: inherit;
+  transition: border-color 150ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 150ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.text-input::placeholder {
+  color: var(--text-muted);
+  opacity: 0.8;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.text-input:focus {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.03), 
+              0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Suggestion Chips: Dark background, thin border, wrap naturally */
+.quick-picks-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.quick-pick-pill {
+  min-height: 34px;
+  padding: 6px 14px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 150ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.quick-pick-pill.active {
+  color: var(--text-primary);
+  border-color: rgba(255, 255, 255, 0.3);
+  background: #1A1A1A;
+  font-weight: 600;
+}
+
+/* Your Short Link Preview: Monospaced URL focus */
+.live-preview-box {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 14px;
+  background: var(--bg-input);
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+}
+
+.live-preview-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+.live-preview-url {
+  font-size: 14px;
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-weight: 500;
+  word-break: break-all;
+  overflow-wrap: anywhere;
+}
+
+/* Button Wrapper */
+.button-wrapper {
+  position: relative;
+}
+
+/* Button: White background, Black text, height 52px on mobile, 48px on desktop */
+.submit-btn {
+  width: 100%;
+  height: 52px;
+  background-color: #FAFAFA;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  color: #0A0A0A;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 150ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 150ms cubic-bezier(0.16, 1, 0.3, 1), border-color 150ms ease, background-color 150ms ease, color 150ms ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+}
+
+.submit-btn:active {
+  transform: scale(0.98);
+}
+
+.submit-btn:disabled {
+  background-color: #161616;
+  color: var(--text-muted);
+  border: 1px solid var(--border-color);
+  box-shadow: none;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+/* Success State button */
+.submit-btn.success {
+  background-color: var(--color-success);
+  border-color: var(--color-success);
+  color: #FFFFFF;
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.2);
+}
+
+/* Inline Input Errors */
+.inline-input-error {
+  font-size: 12px;
+  color: var(--color-error);
+  font-weight: 500;
+  margin-top: 4px;
+  animation: slideUp 120ms ease-out;
+}
+
+.text-input.input-error-state {
+  border-color: rgba(239, 68, 68, 0.35);
+}
+
+.text-input.input-error-state:focus {
+  border-color: var(--color-error);
+  box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.15), 
+              0 0 12px rgba(239, 68, 68, 0.03);
+}
+
+/* Subtle error container: soft red/dark bg, thin border, red text */
+.error-message {
+  padding: 14px 16px;
+  background: #181111;
+  border: 1px solid rgba(239, 68, 68, 0.15);
+  color: #F87171;
+  border-radius: 12px;
+  font-size: 13px;
+  text-align: center;
+  animation: slideUp 0.2s ease-out;
+}
+
+/* Shortened Result Card */
+.result-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  padding: 20px;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  animation: slideUp 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.result-header {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+}
+
+.result-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px;
+  background: var(--bg-input);
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+}
+
+.result-url {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-primary);
+  word-break: break-all;
+  overflow-wrap: anywhere;
+}
+
+.copy-btn {
+  width: 100%;
+  height: 44px;
+  background: #1A1A1A;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 150ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.copy-btn:active {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+/* Footer Section */
+.footer {
+  text-align: center;
+  margin-top: 16px;
+}
+
+.footer p {
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 0.02em;
+}
+
+/* Inline Validation Area (Compact below input) */
+.inline-validation-area {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px;
+  background: rgba(239, 68, 68, 0.03); /* muted red, low opacity */
+  border: 1px solid rgba(239, 68, 68, 0.1);
+  border-radius: 12px;
+  margin-top: 8px;
+  animation: fadeIn 180ms ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.validation-error-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: #F87171; /* soft red */
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.validation-suggestions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.suggestions-subtitle {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+
+.suggestions-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Suggestion Chip styling */
+.suggestion-chip {
+  min-height: 32px;
+  padding: 5px 12px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 150ms cubic-bezier(0.16, 1, 0.3, 1);
+  outline: none;
+}
+
+.suggestion-chip:focus,
+.suggestion-chip.active {
+  color: var(--text-primary);
+  border-color: rgba(255, 255, 255, 0.3);
+  background: #1A1A1A;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.05);
+}
+
+@media (hover: hover) {
+  .suggestion-chip:hover {
+    color: var(--text-primary);
+    border-color: rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.02);
+  }
+}
+
+/* ==========================================================================
+   DESKTOP & TABLET MEDIA QUERIES (Hover lift and layouts)
+   ========================================================================== */
+
+/* Apply hover effects only on desktop non-touch screens */
+@media (hover: hover) {
+  .github-link:hover {
+    color: var(--text-primary);
+    border-color: rgba(255, 255, 255, 0.16);
+    background: #161616;
+  }
+
+  .quick-pick-pill:hover {
+    color: var(--text-primary);
+    border-color: rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.02);
+  }
+
+  /* Lift 2px, border becomes brighter, shadow slightly increases */
+  .submit-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    border-color: #FAFAFA;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  }
+
+  .submit-btn.success:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(34, 197, 94, 0.3);
+  }
+
+  .copy-btn:hover {
+    color: var(--text-primary);
+    border-color: rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.02);
+  }
+}
+
+/* Tablet / Desktop scaling */
+@media (min-width: 640px) {
+  .github-link {
+    top: 24px;
+    right: 24px;
+  }
+
+  .container {
+    max-width: 620px; /* 620px maximum card width */
+    padding-left: 0;
+    padding-right: 0;
+    gap: 32px;
+  }
+
+  .linksense-layout {
+    padding: clamp(64px, 10vh, 140px) 0 48px 0;
+  }
+
+  .shortener-form {
+    padding: 32px; /* card padding 32px on desktop */
+    border-radius: 24px;
+    gap: 24px;
+  }
+
+  /* Compact input sizing on desktop viewports to prevent 'zoomed' look */
+  .text-input {
+    height: 48px;
+    font-size: 15px;
+  }
+
+  .text-input::placeholder {
+    font-size: 14px;
+  }
+
+  .quick-pick-pill {
+    min-height: 32px;
+  }
+
+  .submit-btn {
+    height: 48px;
+    font-size: 15px;
+  }
+
+  .result-body {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px;
+  }
+
+  .copy-btn {
+    width: auto;
+    height: auto;
+    padding: 8px 16px;
+    font-size: 12px;
+  }
+}
