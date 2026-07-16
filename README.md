@@ -1,81 +1,139 @@
 # LinkSense
-**A developer-first URL shortener that doesn't get in your way.**
 
-I built this because of a minor annoyance. I wanted to shorten a link for a project demo, went to Bitly, typed in a custom alias, and clicked submit. Nothing happened. No error message, no red outlines, just a dead button that did absolutely nothing. It was incredibly frustrating for something that should be a simple database check and redirect.
-
-So, I built LinkSense. It does one thing right: you type a URL, pick an alias (or leave it blank), get instant feedback on whether it's available, and get your short link. No bloated dashboard, no signup walls, just the core flow working exactly how you expect.
+LinkSense is a premium, developer-first URL shortener designed with extreme minimalist aesthetics inspired by Linear and Vercel. Built on a robust Express backend and a mobile-first React frontend, it provides secure, zero-dependency alias redirection and dynamic check validations. It runs with automatic database fallback options (Mongoose Atlas and Upstash Redis) to ensure seamless local testing and deployment.
 
 ---
 
-## ⚡ The Quick Summary
+## Overview
 
-LinkSense keeps it clean: a dark-mode form, live debounced alias checking, and a redirect flow that gracefully handles database hiccups (like your connection going offline) without crashing.
-
-* **Frontend**: React (Vite) styled with plain CSS on an 8px grid. Nice and snappy.
-* **Backend**: Node.js & Express (using modern ES Modules).
-* **Storage**: MongoDB Atlas (via Mongoose) with an Upstash Redis cache tier.
-* **Fallback**: If MongoDB is unreachable, it automatically swaps to an in-memory store. Perfect for local dev without messing with IP whitelists.
+LinkSense simplifies link management for developers and teams by providing a clean, distraction-free environment to shorten, validate, and redirect links. It focuses on quiet confidence through typography, proportions, and visual restraint rather than flashy marketing graphics. It features live URL validation, debounced alias availability checking, and client-side resolution fallbacks.
 
 ---
 
-## 📁 How the Repo is Organized
+## Tech Stack
 
-We split the code cleanly into two halves:
+*   **Frontend**: React (Vite), Inter & Share Tech Mono Fonts, Vanilla CSS (8px grid system).
+*   **Backend**: Node.js, Express (ES Modules).
+*   **Database**: MongoDB Atlas (Mongoose ODM).
+*   **Cache**: Redis (Upstash TCP client via `ioredis`).
+*   **Deployment**: Vercel (Client), Render/Railway/Self-Hosted (Server).
+
+---
+
+## Project Structure
 
 ```text
 LinkSense/
-├── Client/                         # Frontend Vite React App
-│   ├── public/                     # Static files (like our system architecture diagram)
-│   ├── src/
-│   │   ├── components/
-│   │   │   └── Toast.jsx           # Notification toast (for when things go wrong)
-│   │   ├── config/
-│   │   │   └── constants.js        # Blocked file extensions and constants
-│   │   ├── pages/
-│   │   │   └── RedirectPage.jsx    # Secure client-side redirect landing page
-│   │   ├── utils/
-│   │   │   └── validation.js       # URL validation logic
-│   │   ├── App.css                 # Main styling (dark theme, responsive layout)
-│   │   ├── App.jsx                 # Core form UI & state handling
-│   │   └── main.jsx                # React mount point
-│   
-├── Server/                         # Express API Backend
-│   ├── src/
-│   │   ├── config/
-│   │   │   ├── db.js               # MongoDB connection handler
-│   │   │   ├── env.js              # Environment variable checks
-│   │   │   └── redis.js            # Redis initialization
-│   │   ├── models/
-│   │   │   └── Url.js              # URL database model
-│   │   ├── services/
-│   │   │   └── urlService.js       # Database storage logic + in-memory fallback
-│   │   ├── utils/
-│   │   │   └── blockedExtensions.js# Rejects dangerous file links (like .exe)
-│   │   └── app.js                  # Routing & request resolution
-│   └── index.js                    # Entry point for the server
+├── Client/                     # Frontend Vite React App
+│   ├── dist/                   # Production compiled output (ignored)
+│   ├── public/                 # Static assets (logo.svg, sitemap.xml, robots.txt)
+│   ├── src/                    # React Source Files
+│   │   ├── config/             # Config files (constants.js)
+│   │   ├── pages/              # Router Page components
+│   │   ├── utils/              # Helper utilities (validation.js)
+│   │   ├── App.css             # Main styling system
+│   │   ├── App.jsx             # Application core entry
+│   │   └── main.jsx            # React root mount
+│   ├── index.html              # Vite entry template
+│   └── package.json            # Client scripts & dependencies
+│
+├── Server/                     # Backend Express API
+│   ├── src/                    # Express App Source
+│   │   ├── config/             # DB & Redis connection handlers (env.js, db.js, redis.js)
+│   │   ├── models/             # Mongoose Schemas (Url.js)
+│   │   ├── services/           # DB storage hooks & fallback drivers (urlService.js)
+│   │   ├── utils/              # Extension filters (blockedExtensions.js)
+│   │   └── app.js              # Express routing logic
+│   ├── .env                    # Local environment variables (ignored)
+│   ├── index.js                # Server entry point
+│   └── package.json            # Server scripts & dependencies
+│
+└── README.md                   # Repository documentation
 ```
 
 ---
 
-## 🛠️ Key Details & How It Works
+## Key Directories Explained
 
-### The Redirection Flow
-When someone hits a shortened link:
-1. We first check the **Redis cache**. If it's a hit, they get redirected immediately (under 10ms).
-2. If it's a miss, we look it up in **MongoDB Atlas**, write the mapping to Redis so the next visit is instant, and perform the redirect.
-3. If MongoDB goes down (e.g., Atlas IP whitelist blocks your current connection), the server falls back to an **in-memory store** rather than crashing.
+### `/Client`
+Contains the Vite React frontend. Handles input validation, custom alias checks, active button states, and live link previews.
 
-### Live Alias Validation
-As you type your custom alias, it debounces for `400ms` before querying the backend. If the alias is already taken, the backend returns 5 suggestions (e.g., prefixing `my-` or adding suffixes) so you aren't left guessing.
+### `/Server`
+Contains the Express server backend. Manages routing, databases connections, cache reads, and handles HTTP redirects.
 
-### Extension Filtering
-We don't want LinkSense to be used to share malware. Both the client and server check the destination URL path and block dangerous extensions like `.exe`, `.dmg`, `.zip`, `.pdf`, etc.
+### `/src` (within Client & Server)
+Houses the functional logic. Inside the client, it holds layouts and styling; inside the server, it houses database models, routes, and utilities.
 
 ---
 
-## ⚙️ Running It Locally
+## Architecture Overview
 
-### 1. Setup Environment
+1.  **Request Flow**: When a user enters a long URL and submits the form, the Client validates it locally and hits the Server's `/api/shorten` route.
+2.  **Shortening Logic**: The Server processes the request, filters against blocked file extensions, and stores the mapping (alias -> long URL) in MongoDB.
+3.  **Caching**: Upon initial redirection, the Server queries MongoDB, caches the mapping in Redis, and redirects the client. Subsequent redirects are served from Redis.
+4.  **Graceful Database Fallback**: If MongoDB connection fails (e.g., due to IP whitelisting restrictions), the Server switches to a secure **in-memory storage mode** to guarantee functional local environments.
+
+---
+
+## Key Features
+
+*   **Premium Minimalist Interface**: Clean dark theme with white/black action buttons and smooth 150ms transitions.
+*   **Live Custom Alias Autocomplete**: Queries availability debounced (400ms) and outputs 5 smart suggestion chips when taken.
+*   **Live Preview**: Monospaced typography previewing the short link (`linksense.vercel.app/{your-alias}`) dynamically.
+*   **Malicious File Prevention**: Rejects submissions pointing to executable or document extensions (e.g., `.exe`, `.dmg`, `.zip`).
+*   **Keyboard Accessibility**: Complete keyboard navigation (Arrow keys and Enter) for suggestion chips.
+
+---
+
+## System Architecture
+
+![System Architecture](Client/public/system_architecture.png)
+
+Below is the request lifecycle and system layout showing the primary Express router, cache checks, and automatic database fallback selection:
+
+```mermaid
+flowchart TD
+    subgraph Client [Client-Side - React App]
+        UI[User Interface] -->|1. Validate URL & Alias| Form[LinkForm]
+        Form -->|Debounced Check| AliasCheck[POST /api/check-alias]
+    end
+
+    subgraph Server [Backend Service - Express]
+        API[Express Router] -->|2. Process Request| Shorten[POST /api/shorten]
+        API -->|3. Resolve Slug| Resolve[GET /:slug]
+        
+        Shorten -->|4. Save Slug| DBSelector{DB Selector}
+        
+        DBSelector -->|Success| Atlas[(MongoDB Atlas Cloud)]
+        DBSelector -->|IP Block / Error| MemStore[Local In-Memory Store]
+        
+        Resolve -->|Cache Check| RedisCache[(Upstash Redis Cache)]
+        RedisCache -->|Cache Miss| DBSelector
+    end
+
+    classDef database fill:#111113,stroke:#27272A,stroke-width:1px,color:#FAFAFA;
+    classDef engine fill:#18181B,stroke:#27272A,stroke-width:1px,color:#FAFAFA;
+    class Atlas,RedisCache database;
+    class DBSelector engine;
+```
+
+### System Design Specifications
+
+*   **Identifier Generation**: Uses **`nanoid(6)`** to generate secure, cryptographically random, and URL-safe 6-character short IDs (e.g., `x7K9ap`), guaranteeing collision-free links without needing database-backed auto-incremented counters.
+*   **Custom Alias Checking & Suggestions**: Dynamic debounced availability validator that checks alias reservations and generates 5 alternative options (prefixes, suffixes, and random hashes) if already taken.
+*   **Database Fallback Layer**: An automatic database selector check. If the MongoDB Atlas cloud cluster is unreachable (due to firewalls or IP restrictions), it automatically switches storage to a local **in-memory store** to avoid server crashes.
+*   **Cache Tier**: Serves redirects directly from **Upstash Redis** cache on hit to ensure low-latency redirection (under 10ms) and reduce MongoDB Atlas database read loads.
+
+---
+
+## Getting Started
+
+### Prerequisites
+*   Node.js (v18 or higher)
+*   npm (v9 or higher)
+
+### Environment Variables
+
 Create a `.env` file in the `/Server` folder:
 ```env
 PORT=5000
@@ -83,35 +141,36 @@ MONGODB_URI=your_mongodb_atlas_connection_string
 REDIS_URL=your_redis_connection_string
 ```
 
-### 2. Start Backend
-```bash
-cd Server
-npm install
-npm run dev
-```
-*Note: If you don't provide a MongoDB URI, the server will warn you and fall back to local in-memory storage. Redirection will still work, but links won't persist if the server restarts.*
+### Local Development
 
-### 3. Start Frontend
-```bash
-cd Client
-npm install
-npm run dev
-```
-The React frontend will spin up on `http://localhost:5173`.
+1.  **Start the Backend Server**:
+    ```bash
+    cd Server
+    npm install
+    npm run dev
+    ```
+    The server will connect to MongoDB/Redis (or fallback to memory store) and run on `http://localhost:5000`.
+
+2.  **Start the Frontend Client**:
+    ```bash
+    cd Client
+    npm install
+    npm run dev
+    ```
+    The client interface will run on `http://localhost:5173`.
 
 ---
 
-## 📡 API Reference
+## API Routes
 
-### Health Check
-`GET /api/health`
-Checks if the server is healthy and returns uptime.
+### 1. Health Status
+*   **Route**: `GET /api/health`
+*   **Description**: Validates backend server status and uptime.
 
-### Check Alias
-`POST /api/check-alias`
-Check if your desired slug is free.
-* **Payload**: `{ "alias": "portfolio" }`
-* **Response**:
+### 2. Check Alias Availability
+*   **Route**: `POST /api/check-alias`
+*   **Payload**: `{ "alias": "portfolio" }`
+*   **Response**: Returns availability and alternative options:
     ```json
     {
       "available": false,
@@ -119,24 +178,31 @@ Check if your desired slug is free.
     }
     ```
 
-### Shorten URL
-`POST /api/shorten`
-Generate a short link.
-* **Payload**: `{ "originalUrl": "https://...", "customKeyword": "my-alias" }`
-* **Response**: `{ "slug": "my-alias", "shortenedUrl": "http://localhost:5000/my-alias" }`
+### 3. Shorten URL
+*   **Route**: `POST /api/shorten`
+*   **Payload**: `{ "originalUrl": "https://...", "customKeyword": "my-alias" }`
 
-### Resolve URL
-`GET /api/resolve/:slug`
-Retrieves the full URL destination.
+### 4. Resolve URL
+*   **Route**: `GET /api/resolve/:slug`
+*   **Description**: Retrieves destination URL mappings from database/cache.
 
-### Direct Redirect
-`GET /:slug`
-Directly issues a `302 Found` redirect header to the destination URL.
+### 5. Redirect Destination
+*   **Route**: `GET /:slug`
+*   **Description**: Handles HTTP 302 redirection.
 
 ---
 
-## 💻 Tech Stack Choice
+## Frontend Routes
 
-* **Frontend**: React 19, React Router v7, Vite.
-* **Backend**: Express 5, Mongoose 9, ioredis.
-* **Deployment**: Vercel (Client), Render (Server), Upstash (Redis).
+*   **Home Page (`/`)**: Main shortening interface card.
+*   **Redirect Page (`/:slug`)**: Resolves the slug and triggers client-side redirect routing.
+
+---
+
+## Technologies Used
+
+*   **Vite** & **React 19**
+*   **Express 5**
+*   **Mongoose 9**
+*   **ioredis**
+*   **Lucide React**
