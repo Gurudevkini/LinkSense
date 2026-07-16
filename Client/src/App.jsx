@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./App.css";
+import { normalizeAndValidateUrl } from "./utils/validation";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
@@ -17,31 +18,25 @@ function App() {
   const [suggestions, setSuggestions] = useState([]);
   const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
 
+  const [urlError, setUrlError] = useState("");
+
   const quickPicks = ["portfolio", "resume", "github", "docs", "blog", "api"];
 
-  // Helper: Live dynamic URL validation
-  const validateUrl = (value) => {
-    if (!value) return false;
-    let urlString = value.trim();
-    if (!/^https?:\/\//i.test(urlString)) {
-      urlString = "https://" + urlString;
+  // Run validation on URL change
+  useEffect(() => {
+    if (!originalUrl) {
+      setUrlError("");
+      return;
     }
     try {
-      const url = new URL(urlString);
-      const hostname = url.hostname;
-      return (
-        hostname.includes(".") &&
-        !hostname.startsWith(".") &&
-        !hostname.endsWith(".") &&
-        hostname.length >= 4 &&
-        /[a-z]/i.test(hostname)
-      );
-    } catch {
-      return false;
+      normalizeAndValidateUrl(originalUrl);
+      setUrlError("");
+    } catch (err) {
+      setUrlError(err.message);
     }
-  };
+  }, [originalUrl]);
 
-  const isValidInput = validateUrl(originalUrl);
+  const isValidInput = originalUrl && !urlError;
 
   // Debounced check for custom alias availability
   useEffect(() => {
@@ -229,10 +224,10 @@ function App() {
                 placeholder="https://youtube.com/watch?v=..."
                 value={originalUrl}
                 onChange={(e) => setOriginalUrl(e.target.value)}
-                className={`text-input ${originalUrl && !isValidInput ? "input-error-state" : ""}`}
+                className={`text-input ${originalUrl && urlError ? "input-error-state" : ""}`}
               />
-              {originalUrl && !isValidInput && (
-                <span className="inline-input-error">Invalid domain</span>
+              {originalUrl && urlError && (
+                <span className="inline-input-error">{urlError}</span>
               )}
             </div>
 

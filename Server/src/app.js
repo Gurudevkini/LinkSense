@@ -3,6 +3,7 @@ import cors from "cors";
 import { nanoid } from "nanoid";
 import redis from "./config/redis.js";
 import blockedExtensions from "./utils/blockedExtensions.js";
+import { isBlockedDomain } from "./utils/blockedDomains.js";
 import {
   createUrl,
   findUrlBySlug,
@@ -92,6 +93,41 @@ const generateSuggestions = async (alias) => {
   return suggestions.slice(0, 5);
 };
 
+// Helper: Google Safe Browsing API check
+const checkSafeBrowsing = async (targetUrl) => {
+  const apiKey = process.env.GOOGLE_SAFE_BROWSING_KEY;
+  if (!apiKey) return true; // Skip check if no API key is configured
+
+  const apiEndpoint = `https://safebrowsing.googleapis.com/v4/threatMatches:find?key=${apiKey}`;
+  const payload = {
+    client: { clientId: "LinkSense", clientVersion: "1.0.0" },
+    threatInfo: {
+      threatTypes: [
+        "MALWARE",
+        "SOCIAL_ENGINEERING",
+        "UNWANTED_SOFTWARE",
+        "POTENTIALLY_HARMFUL_APPLICATION"
+      ],
+      platformTypes: ["ANY_PLATFORM"],
+      threatEntryTypes: ["URL"],
+      threatEntries: [{ url: targetUrl }]
+    }
+  };
+
+  try {
+    const response = await fetch(apiEndpoint, {
+      method: "POST",
+      body: JSON.stringify(payload),
+      headers: { "Content-Type": "application/json" }
+    });
+    const data = await response.json();
+    return !(data.matches && data.matches.length > 0); // returns false if unsafe
+  } catch (err) {
+    console.error("Safe Browsing API check failed:", err);
+    return true; // Fallback to safe if API request fails to avoid breaking flow
+  }
+};
+
 // POST /api/check-alias
 app.post("/api/check-alias", async (req, res) => {
   try {
@@ -135,6 +171,20 @@ app.post("/api/shorten", async (req, res) => {
     if (hasBlockedExtension(originalUrl)) {
       return res.status(400).json({
         error: "URLs pointing to executable or document files are not allowed.",
+      });
+    }
+
+    if (isBlockedDomain(originalUrl)) {
+      return res.status(400).json({
+        error: "This domain contains content that is not allowed on LinkSense.",
+      });
+    }
+
+    // Google Safe Browsing verification
+    const isSafe = await checkSafeBrowsing(originalUrl);
+    if (!isSafe) {
+      return res.status(400).json({
+        error: "This URL has been flagged as unsafe or malicious by security services.",
       });
     }
 

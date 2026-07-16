@@ -1,4 +1,4 @@
-import { BLOCKED_EXTENSIONS } from '../config/constants';
+import { BLOCKED_EXTENSIONS, BLOCKED_DOMAINS } from '../config/constants';
 
 export const normalizeAndValidateUrl = (input) => {
     if (!input) return null;
@@ -34,10 +34,17 @@ export const normalizeAndValidateUrl = (input) => {
         }
 
         const lowerPath = url.pathname.toLowerCase();
-        const isBlocked = BLOCKED_EXTENSIONS.some(ext => lowerPath.endsWith(ext));
+        const isBlockedExt = BLOCKED_EXTENSIONS.some(ext => lowerPath.endsWith(ext));
 
-        if (isBlocked) {
+        if (isBlockedExt) {
             throw new Error('Download links are not allowed.');
+        }
+
+        const lowerHostname = hostname.toLowerCase();
+        const isBlockedDomain = BLOCKED_DOMAINS.some(pattern => lowerHostname.includes(pattern));
+
+        if (isBlockedDomain) {
+            throw new Error('This domain contains content that is not allowed.');
         }
 
         return url.href;
